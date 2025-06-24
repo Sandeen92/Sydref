@@ -1,45 +1,31 @@
-
-
-// Define routes: inline HTML or external files
+// Define routes: external HTML snippets (located in the "route/" folder)
 const routes = {
-  home: `
-    <h1>Välkommen till Sydref AB</h1>
-    <p></p>
-  `,
-  about: `
-    <h1>Om mig</h1>
-    <p></p>
-  `,
-  contact: `
-    <h1>Bildgalleri</h1>
-    <img
-      src="images/fast.jpg"
-      alt="Fast Image"
-      class="img-fluid"
-    />
-  `
+  home: 'start.html',
+  about: 'aboutme.html',
+  contact: 'gallery.html'
 };
 
-// Load route into #content
 function loadRoute(name) {
-  const target = document.getElementById('content');
-  const payload = routes[name];
-  if (!payload) {
-    target.innerHTML = `<h1>404 – Page not found</h1>`;
+  const content = document.getElementById('content');
+  const path = routes[name];
+  if (!path) {
+    content.innerHTML = '<h1>404 – Sidan hittades inte</h1>';
     return;
   }
 
-  if (/^\s*<\w+/.test(payload)) {
-    target.innerHTML = payload;
-  } else {
-    fetch(payload)
-      .then(res => res.text())
-      .then(html => target.innerHTML = html)
-      .catch(() => target.innerHTML = `<h1>Error loading page</h1>`);
-  }
+  fetch(path)
+    .then(res => {
+      if (!res.ok) throw new Error(`Could not fetch ${path} (status: ${res.status})`);
+      return res.text();
+    })
+    .then(html => { content.innerHTML = html; })
+    .catch(err => {
+      console.error(err);
+      content.innerHTML = `<h1>Kunde inte ladda sidan</h1><p>${err.message}</p>`;
+    });
 }
 
-// Wire up navbar links
+// Nav links
 document.querySelectorAll('.nav-link').forEach(link => {
   link.addEventListener('click', e => {
     e.preventDefault();
@@ -49,5 +35,5 @@ document.querySelectorAll('.nav-link').forEach(link => {
   });
 });
 
-// Load default route
+// Initial
 loadRoute('home');
