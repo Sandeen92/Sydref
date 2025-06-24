@@ -1,0 +1,20 @@
+/* Ensure footer sticks to bottom if content is short */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  display: flex;
+  flex-direction: column;
+}
+#content {
+  flex: 1 0 auto;
+}
+footer {
+  flex-shrink: 0;
+}
+
+.footer-logo {
+  max-width: 60%;
+  height: auto;
+}
