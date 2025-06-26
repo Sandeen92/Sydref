@@ -1,109 +1,106 @@
-// Define page routes: external HTML snippets
+// index.js
+
 const pageRoutes = {
-  home: 'start.html',
-  about: 'aboutme.html',
-  contact: 'gallery.html'  // key matches data-route="contact"
+  home:    'start.html',
+  about:   'aboutme.html',
+  contact: 'gallery.html'
 };
 
-let cachedGalleryHTML = '';
-let lightbox, lbImg, prevBtn, nextBtn, closeBtn;
-let currentIdx = 0;
+document.addEventListener('DOMContentLoaded', () => {
+  setupNavLinks();
+  navigateTo('home');
+});
 
-// Build static gallery markup once
-function buildGalleryContent() {
-  const totalImages = 37;
-  const images = Array.from({ length: totalImages }, (_, i) => `/gallery/img${i + 1}.jpg`);
-
-  // Gallery grid
-  let html = '<div id="gallery" class="gallery-grid">';
-  images.forEach(src => {
-    html += `<img src="${src}" class="gallery-img" alt="Gallery Image" />`;
-  });
-  html += '</div>';
-  return html;
-}
-
-// Setup lightbox once
-function setupLightbox() {
-  lightbox = document.createElement('div');
-  lightbox.id = 'lightbox';
-  lightbox.className = 'lightbox';
-
-  lbImg = document.createElement('img');
-  lbImg.id = 'lightbox-img';
-
-  prevBtn = document.createElement('button');
-  prevBtn.id = 'lightbox-prev';
-  prevBtn.textContent = '‹';
-
-  nextBtn = document.createElement('button');
-  nextBtn.id = 'lightbox-next';
-  nextBtn.textContent = '›';
-
-  closeBtn = document.createElement('button');
-  closeBtn.id = 'lightbox-close';
-  closeBtn.textContent = '✕';
-
-  lightbox.append(prevBtn, lbImg, nextBtn, closeBtn);
-  document.body.appendChild(lightbox);
-
-  prevBtn.addEventListener('click', () => showImage(currentIdx - 1));
-  nextBtn.addEventListener('click', () => showImage(currentIdx + 1));
-  closeBtn.addEventListener('click', () => lightbox.style.display = 'none');
-  lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.style.display = 'none'; });
-  document.addEventListener('keydown', e => {
-    if (lightbox.style.display === 'flex') {
-      if (e.key === 'ArrowRight') showImage(currentIdx + 1);
-      if (e.key === 'ArrowLeft') showImage(currentIdx - 1);
-      if (e.key === 'Escape') lightbox.style.display = 'none';
-    }
+function setupNavLinks() {
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+      link.classList.add('active');
+      navigateTo(link.dataset.route);
+    });
   });
 }
 
-// Show image in lightbox
-function showImage(idx) {
-  const imgs = document.querySelectorAll('#gallery img');
-  const total = imgs.length;
-  currentIdx = (idx + total) % total;
-  lbImg.src = imgs[currentIdx].src;
-  lightbox.style.display = 'flex';
-}
-
-// Inject gallery and wire thumbnails
-function renderGallery() {
-  const content = document.getElementById('content');
-  content.innerHTML = cachedGalleryHTML;
-  const thumbs = document.querySelectorAll('#gallery img');
-  thumbs.forEach((img, i) => img.addEventListener('click', () => showImage(i)));
-}
-
-// Initial setup: build HTML and lightbox
-cachedGalleryHTML = buildGalleryContent();
-setupLightbox();
-
-// Navigation
 function navigateTo(routeName) {
   const content = document.getElementById('content');
-  if (routeName === 'contact') return renderGallery();
-
   const path = pageRoutes[routeName];
   if (!path) {
     content.innerHTML = '<h1>404 – Sidan hittades inte</h1>';
     return;
   }
+
   fetch(`${path}?t=${Date.now()}`)
-    .then(res => res.ok ? res.text() : Promise.reject(res.statusText))
-    .then(html => content.innerHTML = html)
-    .catch(err => content.innerHTML = `<h1>Kunde inte ladda sidan</h1><p>${err}</p>`);
+    .then(res => {
+      if (!res.ok) throw new Error(res.statusText);
+      return res.text();
+    })
+    .then(html => {
+      content.innerHTML = html;
+
+      if (routeName === 'contact') {
+        // gallery.html has been injected, now wire up the lightbox
+        initGallery();
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      content.innerHTML = `<h1>404 – Sidan hittades inte</h1><p>${err.message}</p>`;
+    });
 }
 
-document.querySelectorAll('.nav-link').forEach(link =>
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
-    link.classList.add('active');
-    navigateTo(link.dataset.route);
-  })
-);
+// Called every time you load the gallery route
+function initGallery() {
+  const thumbs   = Array.from(document.querySelectorAll('#gallery .gallery-img'));
+  const lightbox = document.getElementById('lightbox');
+  const lbImg    = document.getElementById('lightbox-img');
+  const btnPrev  = document.getElementById('lightbox-prev');
+  const btnNext  = document.getElementById('lightbox-next');
+  const btnClose = document.getElementById('lightbox-close');
 
-document.addEventListener('DOMContentLoaded', () => navigateTo('home'));
+  let currentIndex = 0;
+
+  function openLightbox(idx) {
+    currentIndex = idx;
+    lbImg.src = thumbs[idx].src;
+    lightbox.style.display = 'flex';
+    document.addEventListener('keydown', onKey);
+  }
+
+  function closeLightbox() {
+    lightbox.style.display = 'none';
+    document.removeEventListener('keydown', onKey);
+  }
+
+  function showNext() {
+    openLightbox((currentIndex + 1) % thumbs.length);
+  }
+
+  function showPrev() {
+    openLightbox((currentIndex - 1 + thumbs.length) % thumbs.length);
+  }
+
+  function onKey(e) {
+    if (e.key === 'ArrowRight') showNext();
+    if (e.key === 'ArrowLeft')  showPrev();
+    if (e.key === 'Escape')     closeLightbox();
+  }
+
+  // detach old handlers (if any) to prevent duplicates
+  thumbs.forEach(img => {
+    img.replaceWith(img.cloneNode(true));
+  });
+
+  // re-query fresh thumbs
+  const freshThumbs = Array.from(document.querySelectorAll('#gallery .gallery-img'));
+
+  freshThumbs.forEach((img, i) => {
+    img.addEventListener('click', () => openLightbox(i));
+  });
+  btnNext.addEventListener('click',   showNext);
+  btnPrev.addEventListener('click',   showPrev);
+  btnClose.addEventListener('click',  closeLightbox);
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) closeLightbox();
+  });
+}
