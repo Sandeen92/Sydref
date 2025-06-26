@@ -15,6 +15,12 @@ footer {
 }
 
 .footer-logo {
-  max-width: 60%;
+  max-width: 40%;
   height: auto;
+}
+
+.portrait-img{
+  max-width: 30%;
+  height: auto;
+  border-radius: 100px;
 }
