@@ -3,7 +3,8 @@
 const pageRoutes = {
   home:    'start.html',
   about:   'aboutme.html',
-  contact: 'gallery.html'
+  gallery: 'gallery.html',
+  projects: 'doneprojects.html'
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,7 +39,7 @@ function navigateTo(routeName) {
     .then(html => {
       content.innerHTML = html;
 
-      if (routeName === 'contact') {
+      if (routeName === 'gallery') {
         // gallery.html has been injected, now wire up the lightbox
         initGallery();
       }
