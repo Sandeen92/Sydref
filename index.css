@@ -7,6 +7,11 @@
   color: white;
 }
 
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  background-size: 100% 100%;
+}
+
 .navbar-toggler{
   border-color: white;
   margin-left: auto;
@@ -32,9 +37,10 @@ body {
 }
 
 .carousel-inner img {
-  height: 900px; /* or whatever height you prefer */
-  object-fit: contain;
   width: 100%;
+  aspect-ratio: 16/9;       /* modern browsers */
+  object-fit: cover;        /* will fill container, cropping if needed */
+  max-height: none;
 }
 
 #content {
@@ -60,4 +66,26 @@ footer {
   max-width: 60%;
   height: auto;
   border-radius: 100px;
+}
+
+@media (max-width: 576px) {
+  /* Remove the 1.5rem top margin that .mt-4 provides */
+  .container.mt-4 {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  /* Kill the bottom margin on the <h1> */
+  .container.mt-4 > h1.mb-4 {
+    margin-bottom: 4 !important;
+  }
+
+    /* undo the fluid aspect‑ratio just for this one */
+  .special-slide {
+    /* back to your original fixed height */
+    height: 900px !important;
+    /* and contain so it won’t be crazy cropped */
+    object-fit: contain !important;
+    /* remove the aspect‑ratio override */
+    aspect-ratio: auto !important;
+  }
 }

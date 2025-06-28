@@ -5,6 +5,7 @@
 
 #gallery {
   padding-top: 50px;
+  padding-bottom: 30px;
 }
 /* Default 4‑column gallery */
 #gallery.gallery-grid {
@@ -22,8 +23,27 @@
 
 /* 1‑column on mobile */
 @media (max-width: 576px) {
+  
   #gallery.gallery-grid {
     grid-template-columns: 1fr;
+  }
+
+    /* Make header a column and push items to the top */
+  #gallery-header {
+    flex-direction: column !important;
+    justify-content: flex-start !important;  /* push to top */
+    align-items: center     !important;  /* keep centered horizontally */
+  }
+
+  /* Return the back button to normal flow */
+  #backBtn {
+    position: relative !important;
+    left: auto              !important;
+    margin-bottom: 2.0rem;              /* space before the title */
+  }
+
+  #gallery-title {
+    font-size: 35px;
   }
 }
 
@@ -42,7 +62,8 @@
 .category-card {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   height: 220px;
 
   display: flex;

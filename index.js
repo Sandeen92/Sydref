@@ -1,10 +1,10 @@
 // index.js
 
 const pageRoutes = {
-  home:    'start.html',
-  about:   'aboutme.html',
-  gallery: 'gallery.html',
-  projects: 'doneprojects.html'
+  home:    '/start.html',
+  about:   '/aboutme.html',
+  gallery: '/gallery.html',
+  projects: '/doneprojects.html'
 };
 
 document.addEventListener('DOMContentLoaded', () => {
