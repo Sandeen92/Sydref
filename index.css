@@ -43,6 +43,15 @@ body {
   max-height: none;
 }
 
+  .special-slide {
+    /* back to your original fixed height */
+    height: 900px !important;
+    /* and contain so it won’t be crazy cropped */
+    object-fit: contain !important;
+    /* remove the aspect‑ratio override */
+    aspect-ratio: auto !important;
+  }
+
 #content {
   flex: 1 0 auto;
 }
@@ -77,15 +86,5 @@ footer {
   /* Kill the bottom margin on the <h1> */
   .container.mt-4 > h1.mb-4 {
     margin-bottom: 4 !important;
-  }
-
-    /* undo the fluid aspect‑ratio just for this one */
-  .special-slide {
-    /* back to your original fixed height */
-    height: 900px !important;
-    /* and contain so it won’t be crazy cropped */
-    object-fit: contain !important;
-    /* remove the aspect‑ratio override */
-    aspect-ratio: auto !important;
   }
 }
